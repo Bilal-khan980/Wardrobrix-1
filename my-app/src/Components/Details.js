@@ -64,7 +64,7 @@ function Details() {
             <div className="home-container" style={{ backgroundColor: "black", paddingBottom: "30px" }}>
                 <div className="container" style={{ paddingTop: "60px", display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
                     <div className="product-card" key={product.id} style={{ backgroundColor: "black", padding: "20px", maxWidth: "600px" }}>
-                        <img src={product.imageUrl} alt={product.name} style={{ width: "100%", borderRadius: "20px", backgroundColor: "black" }} />
+                        <img src={`http://localhost:5000${product.imageUrl}`} alt={product.name} style={{ width: "100%", borderRadius: "20px", backgroundColor: "black" }} />
                     </div>
                     <div style={{ padding: "20px", maxWidth: "600px", color: "white" }}>
                         <Link to="/productspage" style={{ color: "yellow" }}>

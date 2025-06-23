@@ -10,7 +10,7 @@ class ManageProducts extends Component {
         id: '',
         name: '',
         price: '',
-        imageUrl: '',
+        image: null,
         latest: false,
         category: '',
         featured: false,
@@ -35,8 +35,12 @@ class ManageProducts extends Component {
     };
 
     handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        this.setState({ [name]: type === 'checkbox' ? checked : value });
+        const { name, value, type, checked, files } = e.target;
+        if (type === 'file') {
+            this.setState({ [name]: files[0] });
+        } else {
+            this.setState({ [name]: type === 'checkbox' ? checked : value });
+        }
     };
 
     handleDeleteProduct = async (productId) => {
@@ -51,33 +55,44 @@ class ManageProducts extends Component {
 
     handleSubmit = async (e) => {
         e.preventDefault();
-        const { id, name, price, imageUrl, latest, category, featured, sizes, colors, quantity } = this.state;
+        const { id, name, price, image, latest, category, featured, sizes, colors, quantity } = this.state;
+
+        if (!image) {
+            this.setState({ error: 'Please select an image for the product' });
+            return;
+        }
 
         try {
-            await axios.post('/products', {
-                id,
-                name,
-                price,
-                imageUrl,
-                latest,
-                category,
-                featured,
-                sizes: sizes.split(','),
-                colors: colors.split(','),
-                quantity
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('name', name);
+            formData.append('price', price);
+            formData.append('image', image);
+            formData.append('latest', latest);
+            formData.append('category', category);
+            formData.append('featured', featured);
+            formData.append('sizes', sizes);
+            formData.append('colors', colors);
+            formData.append('quantity', quantity);
+
+            await axios.post('/products', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
             alert('Product added successfully');
             this.setState({
                 id: '',
                 name: '',
                 price: '',
-                imageUrl: '',
+                image: null,
                 latest: false,
                 category: '',
                 featured: false,
                 sizes: '',
                 colors: '',
-                quantity: ''
+                quantity: '',
+                error: ''
             });
             this.fetchProducts();
         } catch (error) {
@@ -87,7 +102,7 @@ class ManageProducts extends Component {
     };
 
     render() {
-        const { products, error, id, name, price, imageUrl, latest, category, featured, sizes, colors, quantity } = this.state;
+        const { products, error, id, name, price, image, latest, category, featured, sizes, colors, quantity } = this.state;
 
         if (error) {
             return <div>Error: {error}</div>;
@@ -109,7 +124,8 @@ class ManageProducts extends Component {
                                 <input type="number" className="form-control" name="price" value={price} onChange={this.handleChange} placeholder="Product Price" required />
                             </div>
                             <div className="form-group">
-                                <input type="text" className="form-control" name="imageUrl" value={imageUrl} onChange={this.handleChange} placeholder="Image URL" required />
+                                <label className="text-light">Product Image</label>
+                                <input type="file" className="form-control" name="image" onChange={this.handleChange} accept="image/*" required />
                             </div>
                             <div className="form-group">
                                 <input type="text" className="form-control" name="category" value={category} onChange={this.handleChange} placeholder="Category" required />
@@ -142,7 +158,7 @@ class ManageProducts extends Component {
                             {products.map(product => (
                                 <div className="col-md-4 mb-4" key={product.id}>
                                     <div className="card">
-                                        <img src={product.imageUrl} className="card-img-top" alt={product.name} />
+                                        <img src={`http://localhost:5000${product.imageUrl}`} className="card-img-top" alt={product.name} />
                                         <div className="card-body" >
                                             <h5 className="card-title">{product.name}</h5>
                                             <p className="card-text">{product.price}</p>

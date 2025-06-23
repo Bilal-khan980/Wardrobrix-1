@@ -1,34 +1,73 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
 const Product = require('../Schemas/ProductSchema.js');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-    const { id, name, price, imageUrl, latest, category, featured, sizes, colors, quantity } = req.body;
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/products/');
+    },
+    filename: function (req, file, cb) {
+        // Generate unique filename with timestamp
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
 
+// File filter to only allow images
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed!'), false);
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
+
+router.post('/', upload.single('image'), async (req, res) => {
     try {
+        const { id, name, price, latest, category, featured, sizes, colors, quantity } = req.body;
+
+        // Check if file was uploaded
+        if (!req.file) {
+            return res.status(400).json({ error: 'Product image is required' });
+        }
+
         const existingProduct = await Product.findOne({ id });
 
         if (existingProduct) {
             return res.status(400).json({ error: 'Product with this id already exists' });
         }
 
+        // Create image URL path for the uploaded file
+        const imageUrl = `/uploads/products/${req.file.filename}`;
+
         const newProduct = new Product({
             id,
             name,
             price,
             imageUrl,
-            latest,
+            latest: latest === 'true',
             category,
-            featured,
-            sizes,
-            colors,
+            featured: featured === 'true',
+            sizes: sizes ? sizes.split(',') : [],
+            colors: colors ? colors.split(',') : [],
             quantity
         });
 
         await newProduct.save();
         console.log('Product saved to database');
-        return res.status(201).json({ message: 'Product added successfully' });
+        return res.status(201).json({ message: 'Product added successfully', product: newProduct });
     } catch (err) {
         console.error('Error saving product:', err);
         return res.status(500).json({ error: 'Failed to add product' });

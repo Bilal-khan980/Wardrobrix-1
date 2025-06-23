@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 const productRoutes = require('../Backend/Routes/ProductRoutes.js');
 const userRoutes = require('../Backend/Routes/UserRoutes.js');
 const cartRoutes = require('../Backend/Routes/CartRoutes.js');
@@ -15,6 +16,9 @@ app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
 }));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/products', productRoutes);

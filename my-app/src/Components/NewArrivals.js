@@ -58,7 +58,7 @@ class NewArrivals extends Component {
                         <div className="product-list" style={{ width: "100%" }}>
                             {filteredProducts.map(product => (
                                 <div className="product-card" key={product.id}>
-                                    <img src={product.imageUrl} alt={product.name} />
+                                    <img src={`http://localhost:5000${product.imageUrl}`} alt={product.name} />
                                     <div className="product-details">
                                         <h3>{product.name}</h3>
                                         <p>{product.price}</p>

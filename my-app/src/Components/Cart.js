@@ -58,7 +58,7 @@ const Cart = () => {
                     <h1 style={{ color: "yellow", textAlign: "center", fontWeight: "bold" }}>CART</h1>
                     {cartItems.map(item => (
                         <div key={item._id} className="cart-item" style={{ display: "flex", justifyContent: "left", padding: "20px", borderBottom: "1px solid white" }}>
-                            <img src={item.imageUrl} alt={item.name} style={{ width: "100px", borderRadius: "10px" }} />
+                            <img src={`http://localhost:5000${item.imageUrl}`} alt={item.name} style={{ width: "100px", borderRadius: "10px" }} />
                             <div style={{ color: "white", textAlign: "left", paddingLeft: "100px" }}>
                                 <h3>{item.name}</h3>
                                 <p>{item.price}</p>

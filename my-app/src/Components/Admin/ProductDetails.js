@@ -52,7 +52,7 @@ function ProductDetails() {
                 <div className="card" style={{ backgroundColor: 'black', border: '4px solid white', borderRadius: '10px', width: "800px" }}>
                     <div className="row no-gutters">
                         <div className="col-md-4">
-                            <img src={product.imageUrl} className="card-img" alt={product.name} />
+                            <img src={`http://localhost:5000${product.imageUrl}`} className="card-img" alt={product.name} />
                         </div>
                         <div className="col-md-8">
                             <div className="card-body">
